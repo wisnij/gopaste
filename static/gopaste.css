@@ -1,0 +1,138 @@
+body {
+    margin: 0;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    color: #333;
+    background: #f7f7f7;
+}
+
+a {
+    color: #66c;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.header {
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+}
+
+h1 {
+    margin: 10px;
+    font-family: Consolas, Monaco, monospace;
+}
+
+h1 a {
+    color: #999;
+}
+
+h1 a:hover {
+    text-decoration: none;
+}
+
+h2 {
+    margin-top: 1em;
+}
+
+h2, .before {
+    margin-left: 10px;
+    margin-bottom: 0.5em;
+}
+
+th {
+    text-align: left;
+}
+
+.display {
+    font-family: Consolas, Monaco, monospace;
+    color: #000;
+    background: #fff;
+    margin: 1em 0 2em 0;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+.display pre {
+    margin-left: 2em;
+    line-height: 15px;
+}
+
+.display td {
+    vertical-align: top;
+}
+
+.numbers pre {
+    margin-left: 0.5em;
+    text-align: right;
+}
+
+.numbers pre a {
+    color: #999;
+}
+
+.numbers pre a:hover {
+    color: #00f;
+}
+
+.new {
+    padding: 1em 1em 2em 1em;
+    background: #fff;
+    border-top: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+input[name=Title] {
+    width: 20em;
+}
+
+input[name=Author] {
+    width: 10em;
+}
+
+textarea {
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+    margin-top: 1em;
+    display: block;
+    width: 100%;
+    height: 30em;
+}
+
+
+.paste-list table {
+    margin: 1em 0;
+    border-spacing: 1em 0;
+}
+
+.paste-list th {
+    line-height: 2;
+    border-bottom: 1px solid #ccc;
+}
+
+.paste-list td {
+    padding-top: 0.5em;
+    white-space: nowrap;
+}
+
+.browse {
+    margin-left: 1em;
+}
+
+.browse h2 {
+    margin-left: 0;
+}
+
+
+.footer {
+    margin-bottom: 1em;
+    margin-right: 10px;
+    text-align: right;
+
+}
+
+.page-bar {
+    white-space: nowrap;
+}
