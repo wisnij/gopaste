@@ -2,11 +2,9 @@
 
 ## Synopsis
 
-    go get github.com/wisnij/gopaste
-    go install github.com/wisnij/gopaste/gopasted
-    
-    cd github.com/wisnij/gopaste
-    gopasted [--source=gopaste.sqlite] [--port=80]
+    go get github.com/wisnij/gopaste/gopasted
+    cd $GOPATH/src/github.com/wisnij/gopaste
+    $GOPATH/bin/gopasted [--source=gopaste.sqlite] [--port=80]
 
 ## Description
 
