@@ -48,7 +48,7 @@
   <h2>{{.TitleDef}}</h2>
   
   <div class="before">
-    <p>Paste {{template "view-link" .Id}}{{if .Annotates.Valid}} annotating {{template "view-link" .Annotates.Int64}}{{end}} ({{.LanguageDef}}) by {{if .Author.Valid}}<a href="/browse/author/{{urlquery .AuthorDef}}">{{.AuthorDef}}</a>{{else}}{{.AuthorDef}}{{end}}{{if .Channel.Valid}} in <a href="/browse/channel/{{urlquery .Channel.String}}">{{.Channel.String}}</a>{{end}}, {{.Created}}</p>
+    <p>Paste {{template "view-link" .Id}}{{if .Annotates.Valid}} annotating {{template "view-link" .Annotates.Int64}}{{end}} ({{.LanguageDef}}) by {{if .Author.Valid}}<a href="/browse/author/{{urlquery .AuthorDef}}">{{.AuthorDef}}</a>{{else}}{{.AuthorDef}}{{end}}{{if .Channel.Valid}} in <a href="/browse/channel/{{urlquery .Channel.String}}">{{.Channel.String}}</a>{{end}}, {{template "reldate" .}}</p>
     <p><a href="/annotate/{{.Id}}">Annotate</a> - <a href="/raw/{{.Id}}">View raw</a>{{if .AnnotationNum}} - <a href="#a{{.AnnotationNum}}">Link</a>{{end}}{{if .Top}} - <a href="/diff/{{.Top.Id}}/{{.Id}}">Diff original</a>{{if.Prev}} / <a href="/diff/{{.Prev.Id}}/{{.Id}}">previous</a>{{end}}{{end}}</p>
   </div>
   
@@ -71,6 +71,8 @@
 
 
 {{define "view-link"}}<a href="/view/{{.}}">#{{.}}</a>{{end}}
+
+{{define "reldate"}}<span title="{{.Created}}">{{.CreatedRel}}</span>{{end}}
 
 
 {{define "linenumber"}}<a id="{{.Anchor}}" href="#{{.Anchor}}">{{.Num}}</a>
@@ -220,7 +222,7 @@
       <td>{{template "author-link" .Paste}}</td>
       <td>{{template "language-link" .Paste}}</td>
       <td>{{template "channel-link" .Paste}}</td>
-      <td>{{.Paste.Created}}</td>
+      <td>{{template "reldate" .Paste}}</td>
       <td>{{template "annotations-value" len .Annotations}}</td>
     </tr>
 {{end}}

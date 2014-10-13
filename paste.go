@@ -11,7 +11,10 @@ import (
 	"time"
 )
 
-const InvalidPasteId = -1
+const (
+	InvalidPasteId = -1
+	TimeFormat     = "2006-01-02 15:04:05"
+)
 
 // Paste represents an individual paste.
 type Paste struct {
@@ -32,7 +35,7 @@ func NewPaste(v url.Values) *Paste {
 	paste := &Paste{
 		Content: v.Get("Content"),
 		Private: (v.Get("Private") == "on"),
-		Created: time.Now().Format("2006-01-02 15:04:05"),
+		Created: time.Now().Format(TimeFormat),
 	}
 
 	if s := strings.TrimSpace(v.Get("Title")); s != "" {
@@ -111,6 +114,66 @@ func (p Paste) RootId() int64 {
 	} else {
 		return p.Id
 	}
+}
+
+const (
+	Minute = 60
+	Hour   = 60 * Minute
+	Day    = 24 * Hour
+	Week   = 7 * Day
+	Month  = 30 * Day
+	Year   = 365 * Day
+)
+
+type timeThreshold struct {
+	seconds float64
+	unit    string
+}
+
+var timeThresholds = []timeThreshold{
+	{0, "just now"},
+	{Minute, "minute"},
+	{Hour, "hour"},
+	{Day, "day"},
+	{Week, "week"},
+	{Month, "month"},
+	{Year, "year"},
+}
+
+// CreatedRel returns a string describing how long ago the paste was created, in
+// a human-friendly format (e.g. "3 days ago").
+func (p Paste) CreatedRel() string {
+	createdTime, err := time.Parse(TimeFormat, p.Created)
+	if err != nil {
+		return "sometime"
+	}
+
+	secondsAgo := time.Since(createdTime).Seconds()
+	i := 0
+	for ; i+1 < len(timeThresholds); i++ {
+		if timeThresholds[i+1].seconds > secondsAgo {
+			break
+		}
+	}
+
+	unit := timeThresholds[i].unit
+	if i == 0 {
+		return unit
+	}
+
+	unitsAgo := secondsAgo / timeThresholds[i].seconds
+	if unitsAgo >= 2 {
+		return fmt.Sprintf("%d %ss ago", int(unitsAgo), unit)
+	}
+
+	var article string
+	if unit[0] == 'h' {
+		article = "an"
+	} else {
+		article = "a"
+	}
+
+	return fmt.Sprintf("%s %s ago", article, unit)
 }
 
 //
