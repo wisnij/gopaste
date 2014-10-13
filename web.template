@@ -131,8 +131,8 @@
           <select name="Language">
             <option value="">plain text</option>
             <option disabled="disabled">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</option>
-            {{range $k, $v := .Languages}}
-            <option value="{{$k}}"{{with $parent}}{{if and .Language.Valid (eq .Language.String $k)}} selected="selected"{{end}}{{end}}>{{$v}}</option>{{end}}
+            {{range $l := .Languages}}
+            <option value="{{$l.Code}}"{{with $parent}}{{if and .Language.Valid (eq .Language.String $l.Code)}} selected="selected"{{end}}{{end}}>{{$l.Name}}</option>{{end}}
           </select>
         </td>
         <td>

@@ -147,7 +147,7 @@ func (s *Server) doMain(q *Query) error {
 		"MainPage":  true,
 		"Title":     "Home",
 		"Page":      page,
-		"Languages": LanguageNames,
+		"Languages": LanguageNamesSorted,
 		"Channels":  []string{}, // TODO
 	})
 }
@@ -398,7 +398,7 @@ func (s *Server) displayNewPage(q *Query, parent *Paste) error {
 	return runTemplate(q.Response, "new", AnyMap{
 		"Title":     title,
 		"Annotates": parent,
-		"Languages": LanguageNames,
+		"Languages": LanguageNamesSorted,
 		"Channels":  []string{}, // TODO
 	})
 }
