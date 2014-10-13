@@ -62,6 +62,15 @@ func NewQuery(w http.ResponseWriter, req *http.Request) *Query {
 	return data
 }
 
+type HttpError struct {
+	Message string
+	Code    int
+}
+
+func (e HttpError) Error() string {
+	return fmt.Sprintf("ERROR %d: %s", e.Code, e.Message)
+}
+
 func (s *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	log.Printf("[web] %s %s %s", req.RemoteAddr, req.Method, req.URL.Path)
 
@@ -99,17 +108,6 @@ func (s *Server) handle(d *Query) error {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-type AnyMap map[string]interface{}
-
-type HttpError struct {
-	Message string
-	Code    int
-}
-
-func (e HttpError) Error() string {
-	return fmt.Sprintf("ERROR %d: %s", e.Code, e.Message)
-}
-
 func parsePasteId(str string) (int64, error) {
 	id, err := strconv.ParseInt(str, 10, 64)
 	if err != nil {
@@ -133,6 +131,8 @@ func runTemplate(w http.ResponseWriter, name string, data interface{}) error {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+type AnyMap map[string]interface{}
 
 func (s *Server) doMain(q *Query) error {
 	opts := NewBrowseOpts()
