@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
+	"sort"
+	"strings"
 )
 
 const createTableSql = `
@@ -20,116 +22,125 @@ const createTableSql = `
 	);
 `
 
+// LanguageNames maps language identifers to the human-readable names of the
+// languages supported by highlightjs.
+var LanguageNames = map[string]string{
+	"1c":             "1C",
+	"actionscript":   "ActionScript",
+	"apache":         "Apache",
+	"applescript":    "AppleScript",
+	"asciidoc":       "AsciiDoc",
+	"autohotkey":     "AutoHotkey",
+	"avrasm":         "AVR assembler",
+	"axapta":         "Axapta",
+	"bash":           "Bash",
+	"brainfuck":      "Brainfuck",
+	"c":              "C",
+	"capnproto":      "Cap'n Proto",
+	"clojure":        "Clojure",
+	"cmake":          "CMake",
+	"coffeescript":   "CoffeeScript",
+	"cpp":            "C++",
+	"cs":             "C#",
+	"css":            "CSS",
+	"d":              "D",
+	"dart":           "Dart",
+	"delphi":         "Delphi",
+	"diff":           "Diff",
+	"django":         "Django",
+	"dos":            "DOS .bat",
+	"dust":           "Dust",
+	"elixir":         "Elixir",
+	"erlang":         "Erlang",
+	"fix":            "FIX",
+	"fsharp":         "F#",
+	"gcode":          "G-Code",
+	"gherkin":        "Gherkin",
+	"glsl":           "OpenGL Shading Language",
+	"go":             "Go",
+	"gradle":         "Gradle",
+	"groovy":         "Groovy",
+	"haml":           "Haml",
+	"handlebars":     "Handlebars",
+	"haskell":        "Haskell",
+	"haxe":           "Haxe",
+	"html":           "HTML",
+	"http":           "HTTP",
+	"ini":            "INI",
+	"java":           "Java",
+	"javascript":     "JavaScript",
+	"json":           "JSON",
+	"lasso":          "Lasso",
+	"lisp":           "Lisp",
+	"livecodeserver": "LiveCode Server",
+	"lua":            "Lua",
+	"makefile":       "Makefile",
+	"markdown":       "Markdown",
+	"mathematica":    "Mathematica",
+	"matlab":         "Matlab",
+	"mel":            "Maya Embedded Language",
+	"mizar":          "Mizar",
+	"monkey":         "Monkey",
+	"nginx":          "Nginx",
+	"nimrod":         "Nimrod",
+	"nix":            "Nix",
+	"nsis":           "NSIS",
+	"objectivec":     "Objective C",
+	"ocaml":          "OCaml",
+	"oxygene":        "Oxygene",
+	"parser3":        "Parser3",
+	"perl":           "Perl",
+	"php":            "PHP",
+	"profile":        "Python profiler",
+	"protobuf":       "Protocol Buffers",
+	"python":         "Python",
+	"q":              "Q",
+	"r":              "R",
+	"rib":            "RenderMan RIB",
+	"rsl":            "RenderMan RSL",
+	"ruby":           "Ruby",
+	"ruleslanguage":  "Oracle Rules Language",
+	"rust":           "Rust",
+	"scala":          "Scala",
+	"scheme":         "Scheme",
+	"scilab":         "Scilab",
+	"scss":           "SCSS",
+	"smalltalk":      "Smalltalk",
+	"sql":            "SQL",
+	"swift":          "Swift",
+	"tex":            "TeX",
+	"thrift":         "Thrift",
+	"typescript":     "TypeScript",
+	"vala":           "Vala",
+	"vbnet":          "VB.Net",
+	"vbscript":       "VBScript",
+	"vhdl":           "VHDL",
+	"vim":            "Vim Script",
+	"x86asm":         "x86 Assembly",
+	"xml":            "XML",
+}
+
 type languageName struct {
 	Name string
 	Code string
 }
 
 // LanguageNamesSorted is a list of known languages, sorted by name.
-var LanguageNamesSorted = []languageName{
-	{"1C", "1c"},
-	{"ActionScript", "actionscript"},
-	{"Apache", "apache"},
-	{"AppleScript", "applescript"},
-	{"AsciiDoc", "asciidoc"},
-	{"AutoHotkey", "autohotkey"},
-	{"AVR assembler", "avrasm"},
-	{"Axapta", "axapta"},
-	{"Bash", "bash"},
-	{"Brainfuck", "brainfuck"},
-	{"C", "c"},
-	{"C#", "cs"},
-	{"C++", "cpp"},
-	{"Cap'n Proto", "capnproto"},
-	{"Clojure", "clojure"},
-	{"CMake", "cmake"},
-	{"CoffeeScript", "coffeescript"},
-	{"CSS", "css"},
-	{"D", "d"},
-	{"Dart", "dart"},
-	{"Delphi", "delphi"},
-	{"Diff", "diff"},
-	{"Django", "django"},
-	{"DOS .bat", "dos"},
-	{"Dust", "dust"},
-	{"Elixir", "elixir"},
-	{"Erlang", "erlang"},
-	{"F#", "fsharp"},
-	{"FIX", "fix"},
-	{"G-Code", "gcode"},
-	{"Gherkin", "gherkin"},
-	{"Go", "go"},
-	{"Gradle", "gradle"},
-	{"Groovy", "groovy"},
-	{"Haml", "haml"},
-	{"Handlebars", "handlebars"},
-	{"Haskell", "haskell"},
-	{"Haxe", "haxe"},
-	{"HTML", "html"},
-	{"HTTP", "http"},
-	{"INI", "ini"},
-	{"Java", "java"},
-	{"JavaScript", "javascript"},
-	{"JSON", "json"},
-	{"Lasso", "lasso"},
-	{"Lisp", "lisp"},
-	{"LiveCode Server", "livecodeserver"},
-	{"Lua", "lua"},
-	{"Makefile", "makefile"},
-	{"Markdown", "markdown"},
-	{"Mathematica", "mathematica"},
-	{"Matlab", "matlab"},
-	{"Maya Embedded Language", "mel"},
-	{"Mizar", "mizar"},
-	{"Monkey", "monkey"},
-	{"Nginx", "nginx"},
-	{"Nimrod", "nimrod"},
-	{"Nix", "nix"},
-	{"NSIS", "nsis"},
-	{"Objective C", "objectivec"},
-	{"OCaml", "ocaml"},
-	{"OpenGL Shading Language", "glsl"},
-	{"Oracle Rules Language", "ruleslanguage"},
-	{"Oxygene", "oxygene"},
-	{"Parser3", "parser3"},
-	{"Perl", "perl"},
-	{"PHP", "php"},
-	{"Protocol Buffers", "protobuf"},
-	{"Python", "python"},
-	{"Python profiler", "profile"},
-	{"Q", "q"},
-	{"R", "r"},
-	{"RenderMan RIB", "rib"},
-	{"RenderMan RSL", "rsl"},
-	{"Ruby", "ruby"},
-	{"Rust", "rust"},
-	{"Scala", "scala"},
-	{"Scheme", "scheme"},
-	{"Scilab", "scilab"},
-	{"SCSS", "scss"},
-	{"Smalltalk", "smalltalk"},
-	{"SQL", "sql"},
-	{"Swift", "swift"},
-	{"TeX", "tex"},
-	{"Thrift", "thrift"},
-	{"TypeScript", "typescript"},
-	{"Vala", "vala"},
-	{"VB.Net", "vbnet"},
-	{"VBScript", "vbscript"},
-	{"VHDL", "vhdl"},
-	{"Vim Script", "vim"},
-	{"x86 Assembly", "x86asm"},
-	{"XML", "xml"},
+var LanguageNamesSorted = []languageName{}
+
+type byName []languageName
+
+func (a byName) Len() int      { return len(a) }
+func (a byName) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a byName) Less(i, j int) bool {
+	return strings.ToUpper(a[i].Name) < strings.ToUpper(a[j].Name)
 }
 
-// LanguageNames maps language identifers to the human-readable names of the
-// languages supported by highlightjs.
-var LanguageNames = map[string]string{}
-
 func init() {
-	for _, v := range LanguageNamesSorted {
-		LanguageNames[v.Code] = v.Name
+	for c, n := range LanguageNames {
+		LanguageNamesSorted = append(LanguageNamesSorted, languageName{Code: c, Name: n})
 	}
+	sort.Sort(byName(LanguageNamesSorted))
 }
 
 // initDb establishes Gopaste's database connection and creates the pastes table
