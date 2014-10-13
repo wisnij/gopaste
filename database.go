@@ -2,8 +2,26 @@ package gopaste
 
 import (
 	"database/sql"
+	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 )
 
+const createTableSql = `
+	CREATE TABLE IF NOT EXISTS pastes (
+		id         INTEGER NOT NULL PRIMARY KEY,
+		title      TEXT,
+		content    TEXT NOT NULL,
+		author     TEXT,
+		language   TEXT,
+		channel    TEXT,
+		annotates  INTEGER,
+		private    INTEGER NOT NULL,
+		created    TEXT NOT NULL
+	);
+`
+
+// LanguageNames maps language identifers to the human-readable names of the
+// languages supported by highlightjs.
 var LanguageNames = map[string]string{
 	"1c":             "1C",
 	"actionscript":   "ActionScript",
@@ -100,24 +118,18 @@ var LanguageNames = map[string]string{
 	"xml":            "XML",
 }
 
-func initDb(dbh *sql.DB) error {
-	sql := `
-		CREATE TABLE IF NOT EXISTS pastes (
-			id         INTEGER NOT NULL PRIMARY KEY,
-			title      TEXT,
-			content    TEXT NOT NULL,
-			author     TEXT,
-			language   TEXT,
-			channel    TEXT,
-			annotates  INTEGER,
-			private    INTEGER NOT NULL,
-			created    TEXT NOT NULL
-		);
-	`
+// initDb establishes Gopaste's database connection and creates the pastes table
+// if necessary.
+func (s *Server) initDb() error {
+	dbh, err := sql.Open(s.Config.DbDriver, s.Config.DbSource)
+	if err != nil {
+		return fmt.Errorf("Error opening %s %s: %v\n", s.Config.DbDriver, s.Config.DbSource, err)
+	}
 
-	if _, err := dbh.Exec(sql); err != nil {
+	if _, err := dbh.Exec(createTableSql); err != nil {
 		return err
 	}
 
+	s.Database = dbh
 	return nil
 }

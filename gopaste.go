@@ -2,36 +2,43 @@ package gopaste
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 )
 
 type Server struct {
+	Config   *Config
 	Database *sql.DB
 }
 
-func New(dbh *sql.DB) (*Server, error) {
-	err := initDb(dbh)
+// New creates a new Gopaste server object and opens its database connection.
+func New(config *Config) (*Server, error) {
+	server := &Server{Config: config}
+
+	err := server.initDb()
 	if err != nil {
 		return nil, err
 	}
 
-	server := &Server{Database: dbh}
 	return server, nil
 }
 
-func (s *Server) ListenAndServe(addr string) error {
+// ListenAndServe starts the server listening for incoming requests on the
+// specified port.
+func (s *Server) ListenAndServe() error {
 	// use ServeMux to get path cleaning, etc. for free
 	mux := http.NewServeMux()
 	mux.Handle("/", s)
 
-	server := &http.Server{
+	addr := fmt.Sprintf(":%d", s.Config.Port)
+	httpServer := &http.Server{
 		Addr:    addr,
 		Handler: mux,
 	}
 
 	log.Printf("[server] listening on %s", addr)
-	err := server.ListenAndServe()
+	err := httpServer.ListenAndServe()
 	if err != nil {
 		return err
 	}
