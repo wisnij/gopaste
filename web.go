@@ -76,6 +76,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	q := NewQuery(w, req)
 	if err := s.handle(q); err != nil {
+		log.Printf("[web] %v", err)
 		if e, ok := err.(HttpError); ok {
 			http.Error(w, e.Error(), e.Code)
 		} else {
