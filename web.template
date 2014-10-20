@@ -72,7 +72,7 @@
 
 {{define "view-link"}}<a href="/view/{{.}}">#{{.}}</a>{{end}}
 
-{{define "reldate"}}<span title="{{.Created}}">{{.CreatedRel}}</span>{{end}}
+{{define "reldate"}}<span title="{{.CreatedDisplay}}">{{.CreatedRel}}</span>{{end}}
 
 
 {{define "linenumber"}}<a id="{{.Anchor}}" href="#{{.Anchor}}">{{.Num}}</a>

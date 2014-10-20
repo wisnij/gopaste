@@ -13,7 +13,7 @@ import (
 
 const (
 	InvalidPasteId = -1
-	TimeFormat     = "2006-01-02 15:04:05"
+	TimeFormat     = "2006-01-02 15:04:05 -07:00"
 )
 
 // Paste represents an individual paste.
@@ -26,7 +26,7 @@ type Paste struct {
 	Channel       sql.NullString `sql:"channel"`
 	Annotates     sql.NullInt64  `sql:"annotates"`
 	Private       bool           `sql:"private"`
-	Created       string         `sql:"created"`
+	Created       int64          `sql:"created"`
 	AnnotationNum int            `sql:"-"`
 }
 
@@ -35,7 +35,7 @@ func NewPaste(v url.Values) *Paste {
 	paste := &Paste{
 		Content: v.Get("Content"),
 		Private: (v.Get("Private") == "on"),
-		Created: time.Now().Format(TimeFormat),
+		Created: time.Now().Unix(),
 	}
 
 	if s := strings.TrimSpace(v.Get("Title")); s != "" {
@@ -140,15 +140,26 @@ var timeThresholds = []timeThreshold{
 	{Year, "year"},
 }
 
+// CreatedTime returns the paste's creation time as a time.Time object.
+func (p Paste) CreatedTime() time.Time {
+	return time.Unix(p.Created, 0)
+}
+
+// CreatedDisplay returns the paste creation date in a human-readable format.
+func (p Paste) CreatedDisplay() string {
+	return p.CreatedTime().Format(TimeFormat)
+}
+
 // CreatedRel returns a string describing how long ago the paste was created, in
 // a human-friendly format (e.g. "3 days ago").
 func (p Paste) CreatedRel() string {
-	createdTime, err := time.Parse(TimeFormat, p.Created)
-	if err != nil {
-		return "sometime"
+	relString := "ago"
+	secondsAgo := time.Since(p.CreatedTime()).Seconds()
+	if secondsAgo < 0 {
+		secondsAgo *= -1
+		relString = "from now"
 	}
 
-	secondsAgo := time.Since(createdTime).Seconds()
 	i := 0
 	for ; i+1 < len(timeThresholds); i++ {
 		if timeThresholds[i+1].seconds > secondsAgo {
@@ -163,7 +174,7 @@ func (p Paste) CreatedRel() string {
 
 	unitsAgo := secondsAgo / timeThresholds[i].seconds
 	if unitsAgo >= 2 {
-		return fmt.Sprintf("%d %ss ago", int(unitsAgo), unit)
+		return fmt.Sprintf("%d %ss %s", int(unitsAgo), unit, relString)
 	}
 
 	var article string
@@ -173,7 +184,7 @@ func (p Paste) CreatedRel() string {
 		article = "a"
 	}
 
-	return fmt.Sprintf("%s %s ago", article, unit)
+	return fmt.Sprintf("%s %s %s", article, unit, relString)
 }
 
 //

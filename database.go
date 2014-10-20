@@ -18,7 +18,7 @@ const createTableSql = `
 		channel    TEXT,
 		annotates  INTEGER,
 		private    INTEGER NOT NULL,
-		created    TEXT NOT NULL
+		created    INTEGER NOT NULL
 	);
 `
 
