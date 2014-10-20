@@ -150,7 +150,6 @@ func (s *Server) doMain(q *Query) error {
 		"Title":     "Home",
 		"Page":      page,
 		"Languages": LanguageNamesSorted,
-		"Channels":  []string{}, // TODO
 	})
 }
 
@@ -411,7 +410,6 @@ func (s *Server) displayNewPage(q *Query, parent *Paste) error {
 		"Title":     title,
 		"Annotates": parent,
 		"Languages": LanguageNamesSorted,
-		"Channels":  []string{}, // TODO
 	})
 }
 

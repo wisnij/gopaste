@@ -135,14 +135,7 @@
             <option value="{{$l.Code}}"{{with $parent}}{{if and .Language.Valid (eq .Language.String $l.Code)}} selected="selected"{{end}}{{end}}>{{$l.Name}}</option>{{end}}
           </select>
         </td>
-        <td>
-          <select name="Channel">
-            <option value="">none</option>
-            <option disabled="disabled">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</option>
-            {{range .Channels}}
-            <option value="{{.}}"{{with $parent}}{{if and .Channel.Valid (eq .Channel.String .)}} selected="selected"{{end}}{{end}}>{{.}}</option>{{end}}
-          </select>
-        </td>
+        <td><input name="Channel" value="{{$parent.Channel.String}}" /></td>
         <td><input name="Private" type="checkbox"{{if $parent}} disabled="disabled"{{if $parent.Private}} checked="checked"{{end}}{{end}} /></td>
       </tr>
     </table>
