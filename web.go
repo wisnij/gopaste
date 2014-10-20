@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -319,23 +320,33 @@ func (s *Server) doDiff(q *Query) error {
 		return HttpError{fmt.Sprintf("paste %d not found", toId), http.StatusNotFound}
 	}
 
+	fromLines := strings.Split(from.Content, "\n")
+	toLines := strings.Split(to.Content, "\n")
+
+	// Ignore whitespace differences in the text being diffed
+	re := regexp.MustCompile(`[ \t]+`)
 	diff := difflib.Diff(
-		strings.Split(from.Content, "\n"),
-		strings.Split(to.Content, "\n"),
+		strings.Split(re.ReplaceAllString(from.Content, " "), "\n"),
+		strings.Split(re.ReplaceAllString(to.Content, " "), "\n"),
 	)
 
+	fromIndex := 0
+	toIndex := 0
 	diffText := ""
 	for _, line := range diff {
-		var prefix string
 		switch line.Delta {
 		case difflib.LeftOnly:
-			prefix = "-"
+			diffText += "-" + fromLines[fromIndex]
+			fromIndex++
 		case difflib.RightOnly:
-			prefix = "+"
+			diffText += "+" + toLines[toIndex]
+			toIndex++
 		default:
-			prefix = " "
+			diffText += " " + fromLines[fromIndex]
+			fromIndex++
+			toIndex++
 		}
-		diffText += prefix + line.Payload + "\n"
+		diffText += "\n"
 	}
 
 	return runTemplate(q.Response, "diff", AnyMap{
