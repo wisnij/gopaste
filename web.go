@@ -44,12 +44,20 @@ type Query struct {
 	Response http.ResponseWriter
 	Action   string
 	Args     []string
+	User     string
 }
 
 func NewQuery(w http.ResponseWriter, req *http.Request) *Query {
 	data := &Query{
 		Request:  req,
 		Response: w,
+	}
+
+	if user := req.Header.Get("REMOTE_USER"); user != "" {
+		if at := strings.Index(user, "@"); at != -1 {
+			user = user[0:at]
+		}
+		data.User = user
 	}
 
 	path := req.URL.Path
@@ -150,6 +158,7 @@ func (s *Server) doMain(q *Query) error {
 		"Title":     "Home",
 		"Page":      page,
 		"Languages": LanguageNamesSorted,
+		"User":      q.User,
 	})
 }
 
@@ -410,6 +419,7 @@ func (s *Server) displayNewPage(q *Query, parent *Paste) error {
 		"Title":     title,
 		"Annotates": parent,
 		"Languages": LanguageNamesSorted,
+		"User":      q.User,
 	})
 }
 

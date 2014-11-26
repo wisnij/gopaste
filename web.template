@@ -127,7 +127,7 @@
       
       <tr>
         <td><input name="Title" placeholder="untitled"{{if $parent}} value="{{$parent.ReplyTitle}}"{{end}} /></td>
-        <td><input name="Author" placeholder="anonymous" /></td>
+        <td><input name="Author" placeholder="anonymous" value="{{.User}}" /></td>
         <td>
           <select name="Language">
             <option value="">plain text</option>
