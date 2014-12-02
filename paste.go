@@ -107,7 +107,8 @@ func (p Paste) ChannelDef() string {
 	return ""
 }
 
-// UltimateParent returns the ID of the paste this one annotates, or this paste's ID if
+// RootId returns the ID of the paste this one annotates, or this paste's ID if
+// this is a top-level paste.
 func (p Paste) RootId() int64 {
 	if p.Annotates.Valid {
 		return p.Annotates.Int64
