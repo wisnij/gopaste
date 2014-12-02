@@ -54,10 +54,10 @@ func NewPaste(v url.Values) *Paste {
 	}
 
 	if s := v.Get("Channel"); s != "" {
-		paste.Channel.Valid = true
 		if !strings.ContainsAny(s[0:1], "&#+!") {
 			s = "#" + s
 		}
+		paste.Channel.Valid = true
 		paste.Channel.String = s
 	}
 
