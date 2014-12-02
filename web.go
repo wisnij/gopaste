@@ -448,9 +448,29 @@ func (s *Server) insertNewPaste(q *Query, parent *Paste) error {
 			return HttpError{fmt.Sprintf("error fetching paste %d: %s", pasteId, err.Error()), http.StatusInternalServerError}
 		}
 
-		newPath = fmt.Sprintf("/view/%d#a%d", parent.Id, annotation)
+		newPath = fmt.Sprintf("/view/%d#a%d", paste.Annotates.Int64, annotation)
 	} else {
 		newPath = fmt.Sprintf("/view/%d", pasteId)
+	}
+
+	if s.Config.HubotHost != "" && paste.Channel.Valid {
+		// Tell hubot to post a paste notification to IRC
+		pasteUrl := "http://" + s.Config.ExternalHost + newPath
+
+		var message string
+		if parent == nil {
+			message = fmt.Sprintf("%s pasted \"%s\" at %s", paste.AuthorDef(), paste.TitleDef(), pasteUrl)
+		} else {
+			message = fmt.Sprintf("%s annotated paste #%d with \"%s\" at %s", paste.AuthorDef(), paste.Annotates.Int64, paste.TitleDef(), pasteUrl)
+		}
+
+		hubotUrl := fmt.Sprintf("http://%s/hubot/say", s.Config.HubotHost)
+		http.PostForm(hubotUrl, url.Values{
+			"room":    {paste.Channel.String},
+			"message": {message},
+		})
+
+		log.Printf("[hubot] %s %s: %s", s.Config.HubotHost, paste.Channel.String, message)
 	}
 
 	http.Redirect(q.Response, q.Request, newPath, http.StatusSeeOther)
