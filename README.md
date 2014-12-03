@@ -15,11 +15,11 @@ Gopaste is a simple pastebin written in Go.
 - Syntax highlighting (courtesy of [highlight.js](http://highlightjs.org/))
 - Paste annotation and diffs
 - Private pastes
+- IRC integration via [Hubot](http://hubot.github.com/)
 
 ### Possible future features
 
 - Full text search
-- IRC bot integration
 - Per-line comments
 - RESTful API
 
