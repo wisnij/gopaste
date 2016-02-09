@@ -47,26 +47,26 @@
 {{define "paste"}}
 <div class="paste"{{if .AnnotationNum}} id="a{{.AnnotationNum}}"{{end}}>
   <h2>{{.TitleDef}}</h2>
-  
+
   <div class="before">
     <p>Paste {{template "view-link" .Id}}{{if .Annotates.Valid}} annotating {{template "view-link" .Annotates.Int64}}{{end}} ({{.LanguageDef}}) by {{if .Author.Valid}}<a href="/browse/author/{{urlquery .AuthorDef}}">{{.AuthorDef}}</a>{{else}}{{.AuthorDef}}{{end}}{{if .Channel.Valid}} in <a href="/browse/channel/{{urlquery .Channel.String}}">{{.Channel.String}}</a>{{end}}, {{template "reldate" .}}</p>
     <p><a href="/annotate/{{.Id}}">Annotate</a> - <a href="/raw/{{.Id}}">View raw</a>{{if .AnnotationNum}} - <a href="#a{{.AnnotationNum}}">Link</a>{{end}}{{if .Top}} - <a href="/diff/{{.Top.Id}}/{{.Id}}">Diff original</a>{{if.Prev}} / <a href="/diff/{{.Prev.Id}}/{{.Id}}">previous</a>{{end}}{{end}}</p>
   </div>
-  
+
   <div class="display">
     <table>
       <tr>
         <td class="numbers">
           <pre>{{range .LineNumbers}}{{template "linenumber" .}}{{end}}</pre>
         </td>
-        
+
         <td class="content">
           <pre><code class="{{if .Language.Valid}}{{.Language.String}}{{else}}no-highlight{{end}}">{{.Content}}</code></pre>
         </td>
       </tr>
     </table>
   </div>
-  
+
 </div>
 {{end}}
 
@@ -92,7 +92,7 @@
     <p>{{template "view-link" .From.Id}} - {{.From.TitleDef}}</p>
     <p>{{template "view-link" .To.Id}} - {{.To.TitleDef}}</p>
   </div>
-  
+
   <div class="display">
     <pre><code class="diff">{{.DiffText}}</code></pre>
   </div>
@@ -124,7 +124,7 @@
         <th>Channel</th>
         <th>Private?</th>
       </tr>
-      
+
       <tr>
         <td><input name="Title" placeholder="untitled"{{if $parent}} value="{{$parent.ReplyTitle}}"{{end}} /></td>
         <td><input name="Author" placeholder="anonymous" value="{{.User}}" /></td>
@@ -136,7 +136,7 @@
             <option value="{{$l.Code}}"{{with $parent}}{{if and .Language.Valid (eq .Language.String $l.Code)}} selected="selected"{{end}}{{end}}>{{$l.Name}}</option>{{end}}
           </select>
         </td>
-        <td><input name="Channel" value="{{$parent.Channel.String}}" /></td>
+        <td><input name="Channel"{{with $parent}}{{if .Channel.Valid}} value="{{.Channel.String}}"{{end}}{{end}} /></td>
         <td><input name="Private" type="checkbox"{{if $parent}} disabled="disabled"{{if $parent.Private}} checked="checked"{{end}}{{end}} /></td>
       </tr>
     </table>
